@@ -1,0 +1,7 @@
+{
+  "name": "distributed-task-queue",
+  "title": "Distributed Task Queue",
+  "stage": "MVP inicial",
+  "owner": "juniordev830",
+  "publishing_requires_authentication": true
+}
