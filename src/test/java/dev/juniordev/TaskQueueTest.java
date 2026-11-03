@@ -18,6 +18,7 @@ class TaskQueueTest {
         assertEquals(TaskQueue.Result.RETRYING, q.processNext(s -> false));
         assertEquals(TaskQueue.Result.DEAD_LETTER, q.processNext(s -> false));
         assertEquals(1, q.deadLetters());
+        assertEquals(new TaskQueue.Stats(0, 1), q.stats());
         assertEquals(TaskQueue.Result.EMPTY, q.processNext(s -> true));
     }
 
