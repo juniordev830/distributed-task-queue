@@ -13,6 +13,9 @@ public final class TaskQueue {
     public record Job(String id, String payload, int attempts) {}
     public enum Result { SUCCESS, RETRYING, DEAD_LETTER, EMPTY }
 
+    /** Immutable snapshot suitable for metrics endpoints. */
+    public record Stats(int pending, int deadLetters) {}
+
     private final Queue<Job> ready = new ArrayDeque<>();
     private final Queue<Job> dead = new ArrayDeque<>();
     private final int maxAttempts;
@@ -66,6 +69,10 @@ public final class TaskQueue {
     /** Number of waiting jobs, excluding jobs currently being processed. */
     public synchronized int pending() {
         return ready.size();
+    }
+
+    public synchronized Stats stats() {
+        return new Stats(ready.size(), dead.size());
     }
 
     public synchronized int deadLetters() {
