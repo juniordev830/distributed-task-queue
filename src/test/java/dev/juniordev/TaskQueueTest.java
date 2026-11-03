@@ -86,4 +86,42 @@ class TaskQueueTest {
             assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS));
         }
     }
+
+    @Test
+    void manualDeadLetterReplayResetsAttemptsAndPreservesOtherJobs() {
+        TaskQueue q = new TaskQueue(2);
+        q.submit("failed", "first");
+        q.submit("healthy", "second");
+        assertEquals(TaskQueue.Result.RETRYING, q.processNext(value -> false));
+        assertEquals(TaskQueue.Result.SUCCESS, q.processNext(value -> true));
+        assertEquals(TaskQueue.Result.DEAD_LETTER, q.processNext(value -> false));
+        assertEquals(java.util.List.of("failed"), q.deadLetterIds());
+        assertThrows(UnsupportedOperationException.class, () -> q.deadLetterIds().add("other"));
+        assertFalse(q.replayDeadLetter("missing"));
+        assertEquals(new TaskQueue.Stats(0, 1), q.stats());
+
+        assertTrue(q.replayDeadLetter(" failed "));
+        assertEquals(new TaskQueue.Stats(1, 0), q.stats());
+        assertEquals(TaskQueue.Result.RETRYING, q.processNext(value -> false),
+                "a replay must start with a new retry budget");
+        assertEquals(TaskQueue.Result.SUCCESS, q.processNext(value -> true));
+        assertEquals(new TaskQueue.Stats(0, 0), q.stats());
+        assertThrows(IllegalArgumentException.class, () -> q.replayDeadLetter(" "));
+    }
+
+    @Test
+    void duplicateDeadLetterIdsAreReplayedOneAtATime() {
+        TaskQueue q = new TaskQueue(1);
+        q.submit("duplicate", "first");
+        q.submit("duplicate", "second");
+        assertEquals(TaskQueue.Result.DEAD_LETTER, q.processNext(value -> false));
+        assertEquals(TaskQueue.Result.DEAD_LETTER, q.processNext(value -> false));
+        assertEquals(java.util.List.of("duplicate", "duplicate"), q.deadLetterIds());
+        assertTrue(q.replayDeadLetter("duplicate"));
+        assertEquals(java.util.List.of("duplicate"), q.deadLetterIds());
+        assertEquals(TaskQueue.Result.SUCCESS, q.processNext("first"::equals));
+        assertTrue(q.replayDeadLetter("duplicate"));
+        assertEquals(TaskQueue.Result.SUCCESS, q.processNext("second"::equals));
+    }
+
 }
