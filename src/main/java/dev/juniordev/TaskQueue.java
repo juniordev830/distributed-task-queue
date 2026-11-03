@@ -1,6 +1,8 @@
 package dev.juniordev;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.function.Predicate;
@@ -73,6 +75,32 @@ public final class TaskQueue {
 
     public synchronized Stats stats() {
         return new Stats(ready.size(), dead.size());
+    }
+
+    /** Snapshot of failed job identifiers; duplicate IDs may appear. */
+    public synchronized List<String> deadLetterIds() {
+        return dead.stream().map(Job::id).toList();
+    }
+
+    /**
+     * Manually replay the oldest dead-letter job with this ID.
+     * The retry count resets; replay is never automatic.
+     * No worker is invoked while holding the queue lock.
+     */
+    public synchronized boolean replayDeadLetter(String id) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("id required");
+        }
+        String normalized = id.trim();
+        for (Iterator<Job> iterator = dead.iterator(); iterator.hasNext();) {
+            Job failed = iterator.next();
+            if (failed.id().equals(normalized)) {
+                iterator.remove();
+                ready.add(new Job(failed.id(), failed.payload(), 0));
+                return true;
+            }
+        }
+        return false;
     }
 
     public synchronized int deadLetters() {
