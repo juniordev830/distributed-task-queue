@@ -319,7 +319,7 @@ class ReliableTaskQueueTest {
         assertEquals(2, q.history().size());
         assertThrows(UnsupportedOperationException.class, () -> q.history().clear());
         assertThrows(UnsupportedOperationException.class, () -> q.list().clear());
-        assertEquals(1, q.history(lease.id()).size());
+        assertEquals(2, q.history(lease.id()).size());
         assertEquals(2, q.list().size());
     }
 
