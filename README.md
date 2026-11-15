@@ -34,7 +34,6 @@ Trocar armazenamento por RabbitMQ e PostgreSQL, adicionar workers separados, ide
 
 Projeto de Engenharia de Software mantido na conta [juniordev830](https://github.com/juniordev830).
 
-
 ## Fila confiável (API adicional)
 
 A classe original `TaskQueue` permanece compatível. Para novos consumidores,
@@ -121,3 +120,7 @@ mvn -B -ntp test
 A suíte cobre retries, limites, TTL, prioridade, ordenação, concorrência,
 expiração e renovação de leases, replay de dead letters, snapshots,
 métricas, exportações CSV/JSON e segurança de dados de relatórios.
+
+## Guia para contribuir
+
+Veja o [roteiro de testes e manutenção](docs/GUIA_DE_VALIDACAO.md) para validar mudanças com comandos e cenários específicos deste projeto.
