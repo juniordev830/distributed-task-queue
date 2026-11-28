@@ -1,5 +1,7 @@
 # Distributed Task Queue
 
+**Navegação** · [Estado](#estado) · [Como executar e testar](#como-executar-e-testar) · [Concorrência e comportamento](#concorrência-e-comportamento) · [Código e estudo](docs/ENGENHARIA_REVERSA.md)
+
 Fila de tarefas em Java 17 com política de tentativas, estados `SUCCESS`, `RETRYING` e `DEAD_LETTER` e validação de entradas. **MVP em memória e em processo único**: ainda não implementa distribuição entre serviços.
 
 ## Estado
@@ -124,3 +126,7 @@ métricas, exportações CSV/JSON e segurança de dados de relatórios.
 ## Guia para contribuir
 
 Veja o [roteiro de testes e manutenção](docs/GUIA_DE_VALIDACAO.md) para validar mudanças com comandos e cenários específicos deste projeto.
+
+## Código e roteiro de estudo
+
+Como evitar que um resultado atrasado conclua uma tarefa já atribuída a outro processamento? O [guia de engenharia reversa](docs/ENGENHARIA_REVERSA.md) reúne o mapa dos módulos e uma pergunta técnica baseada no projeto.
